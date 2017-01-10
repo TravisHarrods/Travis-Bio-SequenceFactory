@@ -1,0 +1,7 @@
+Build.PL
+lib/Travis/Bio/SequenceFactory.pm
+lib/Travis/Bio/SequenceFactory/BioFile.pm
+lib/Travis/Bio/SequenceFactory/BioFormat.pm
+lib/Travis/Bio/SequenceFactory/Sequence.pm
+MANIFEST			This list of files
+README.md
