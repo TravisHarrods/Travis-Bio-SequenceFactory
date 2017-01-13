@@ -17,7 +17,7 @@ my $builder = Module::Build->new(
   },
   meta_merge => {
     ressources => {
-      repository => 'https://github.com/TravisHarrods/Travis-Utilities-SequenceFactory'
+      repository => 'https://github.com/TravisHarrods/Travis-Bio-SequenceFactory'
     }
   },
   create_makefile_pl => 'traditional',
