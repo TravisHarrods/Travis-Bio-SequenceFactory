@@ -21,7 +21,6 @@ my $log = Travis::Utilities::Log->new();
 #==============================================================================
 # ATTRIBUTS
 #==============================================================================
-our $VERSION = 0.01;
 # A hash ref that contains the subsets
 has 'data' => (
   traits   => ['Hash'],
@@ -38,8 +37,6 @@ has 'data' => (
     setData  => 'set',
     hasData  => 'exists',
     keysData => 'keys'
-
-
   }
 );
 
@@ -70,10 +67,10 @@ sub addDataKey {
   # Fill the data container
   if( ref($element) eq 'ARRAY' ) {
     foreach (@{$element}) {
-      push @{$self->data()->{'no_id'}}, $_;
+      push @{$self->data()->{$key}}, $_;
     }
   } else {
-    push @{$self->data()->{'no_id'}}, $element;
+    push @{$self->data()->{$key}}, $element;
   }
 }
 

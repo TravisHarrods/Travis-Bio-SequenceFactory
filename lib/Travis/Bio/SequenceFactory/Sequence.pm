@@ -3,9 +3,9 @@ package Travis::Bio::SequenceFactory::Sequence;
 #==============================================================================
 # Travis::Bio::SequenceFactory::Sequence handles a Bio::Seq object.
 #
-# Author: Hugo Devillers
+# Author: Hugo Devillers, Travis Harrods
 # Created: 29-FEB-2016
-# Updated: 10-JAN-2017
+# Updated: 11-JAN-2017
 #==============================================================================
 
 #==============================================================================

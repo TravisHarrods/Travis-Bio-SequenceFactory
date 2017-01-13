@@ -4,9 +4,9 @@ package Travis::Bio::SequenceFactory;
 # Travis::Bio::SequenceFactory provides a class to handle a group of
 # sequences.
 #
-# Author: Hugo Devillers
+# Author: Hugo Devillers, Travis Harrods
 # Created: 29-FEB-2016
-# Updated: 10-JAN-2017
+# Updated: 12-JAN-2017
 #==============================================================================
 
 #==============================================================================
@@ -18,6 +18,7 @@ use Bio::SeqIO;
 #use threads::shared;
 use Travis::Bio::SequenceFactory::Sequence;
 use Travis::Bio::SequenceFactory::BioFormat;
+use Travis::Bio::SequenceFactory::FeatureSubsets;
 use Travis::Utilities::Files;
 use Travis::Utilities::Log;
 
@@ -79,6 +80,20 @@ has 'sequence_index' => (
                   }
 );
 
+# a structure that can contain different subsets of features
+has 'feature_subsets' => (
+  is       => 'rw',
+  isa      => 'Travis::Bio::SequenceFactory::FeatureSubsets',
+  default  => sub{
+    my $tmp = Travis::Bio::SequenceFactory::FeatureSubsets->new();
+    return($tmp);
+  },
+  handles  => {
+    getFeatureSubset => 'getSubset',
+    addFeatureSubset => 'addSubset',
+    hasFeatureSubset => 'hasSubset'
+  }
+);
 
 #==============================================================================
 # BUILDER
@@ -215,6 +230,8 @@ sub addInputPath {
       $log->trace('Added '.$added.' sequences from '.$input.'.');
    }
 }
+
+# Create a new subset of features
 
 
 #*******************************************************************************
