@@ -231,8 +231,55 @@ sub addInputPath {
    }
 }
 
-# Create a new subset of features
+# Insert features from a subset into sequence data
+sub insertSubsetFeature {
+  my $self = shift;
+  my $ssid = shift;
 
+  # Check if required subset exists
+  if( $self->hasFeatureSubset($ssid) ) {
+    # Get the list of data ID (it is supposed to be sequence ID)
+    foreach my $id ( $self->getFeatureSubset($ssid)->keysData() ) {
+      # Detect the no ID subset of features
+      if( $id ne 'no_id' ) {
+        # Check if the sequence ID exists
+        if( $self->testSequenceIndex($id) ) {
+          # Get the sequence index
+          my $index = $self->getSequenceIndex($id);
+
+          # Add features into the corresponding sequence
+          foreach my $feat ( @{$self->getFeatureSubset($ssid)->getData($id)} ) {
+            $self->sequences()->[$index]->addFeature($feat);
+          }
+        } else {
+          # Unknown sequence ID
+          $log->fatal('Unknown sequence ID ('.$id.') from feature subset '.
+            $ssid.'.');
+        }
+      } else {
+        # Check if features are stored in the no id subset
+        if( scalar(@{$self->getFeatureSubset($ssid)->getData('no_id')}) > 0) {
+          $log->warning('The feature subset '.$ssid.' contains features that'.
+            ' are not associated to known sequence.');
+        }
+      }
+    }
+  } else {
+    $log->fatal('The required feature subset ('.$ssid.') does not exists.');
+  }
+  return(1);
+}
+
+# Sort all the features from all sequences
+sub sortSequenceFeatures {
+  my $self = shift;
+
+  foreach ( $self->enumSequenceIndex() ) {
+     $self->sequences()->[$self->getSequenceIndex($_)]->sortFeatures();
+  }
+  return(1);
+
+}
 
 #*******************************************************************************
 # ACTIONS ON PATHS / IO
@@ -262,6 +309,7 @@ sub changeOutputDirectory {
    else {
       $log->fatal('Unknown sequence id: '.$seq_id.'.');
    }
+   return(1);
 }
 
 # Function to change all the output directories
@@ -284,6 +332,7 @@ sub changeOutputDirectories {
    foreach ( $self->enumSequenceIndex() ) {
       $self->changeOutputDirectory( $_, $output );
    }
+   return(1);
 }
 
 # Write one given sequence into its corresponding output path
@@ -299,6 +348,7 @@ sub writeSequence {
    if( $self->testSequenceIndex($seq_id) ) {
       $self->sequences()->[$self->getSequenceIndex($seq_id)]->write();
    }
+   return(1);
 }
 
 # Write all sequences
@@ -308,7 +358,7 @@ sub writeSequences {
    foreach ( $self->enumSequenceIndex() ) {
       $self->sequences()->[$self->getSequenceIndex($_)]->write();
    }
-
+   return(1);
 }
 
 no Moose;
