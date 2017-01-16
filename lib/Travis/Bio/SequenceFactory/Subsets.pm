@@ -58,6 +58,7 @@ sub addSubset {
   } else {
     $self->getSubset($ssid)->addDataKey($element, $key);
   }
+  return(1);
 }
 
 no Moose;

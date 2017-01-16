@@ -1,4 +1,4 @@
-package Travis::Bio::SequenceFactory::bioFile;
+package Travis::Bio::SequenceFactory::BioFile;
 
 #==============================================================================
 # Travis::Bio::SequenceFactory::bioFile allows to handle and manage a file written in a
