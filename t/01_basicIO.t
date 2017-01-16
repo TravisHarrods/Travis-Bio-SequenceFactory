@@ -1,5 +1,4 @@
 use strict;
-#use File::Temp qw/ tempdir /;
 use Test::More tests => 4;
 
 BEGIN {
