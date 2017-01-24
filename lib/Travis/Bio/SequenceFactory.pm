@@ -55,29 +55,31 @@ has 'bio_format' => (
 
 # sequence array
 has 'sequences' => (
-   traits      => ['Array'],
-   is          => 'rw',
-   isa         => 'ArrayRef[Travis::Bio::SequenceFactory::Sequence]',
-   default     => sub{ [] },
-   handles     => {
-                     addSequence    => 'push',
-                     countSequences => 'count'
-                  }
+  traits      => ['Array'],
+  is          => 'rw',
+  isa         => 'ArrayRef[Travis::Bio::SequenceFactory::Sequence]',
+  default     => sub{ [] },
+  handles     => {
+    addSequence    => 'push',
+    countSequences => 'count',
+    getSequence    => 'get'
+  },
+  trigger     => \&_edit_sequences
 );
 
 # sequence index (id => index)
 has 'sequence_index' => (
-   traits      => ['Hash'],
-   is          => 'rw',
-   isa         => 'HashRef',
-   default     => sub{ {} },
-   handles     => {
-                     getSequenceIndex  => 'get',
-                     setSequenceIndex  => 'set',
-                     testSequenceIndex => 'exists',
-                     enumSequenceIndex => 'keys',
-                     listSequenceIndex => 'kv'
-                  }
+  traits      => ['Hash'],
+  is          => 'rw',
+  isa         => 'HashRef',
+  default     => sub{ {} },
+  handles     => {
+    getSequenceIndex  => 'get',
+    setSequenceIndex  => 'set',
+    testSequenceIndex => 'exists',
+    enumSequenceIndex => 'keys',
+    listSequenceIndex => 'kv'
+  }
 );
 
 # a structure that can contain different subsets of features
@@ -93,6 +95,38 @@ has 'feature_subsets' => (
     addFeatureSubset => 'addSubset',
     hasFeatureSubset => 'hasSubset'
   }
+);
+
+# Iterator variable
+has 'sequence_order' => (
+  traits   => ['Array'],
+  is       => 'rw',
+  isa      => 'ArrayRef',
+  default  => sub{ [] },
+  handles  => {
+    countSequenceOrder => 'count',
+    addSequenceOrder   => 'push',
+    getSequenceOrder   => 'get'
+  }
+);
+
+# Iterator attribute for sequence
+has 'sequence_iter' => (
+  traits  => ['Counter'],
+  is      => 'rw',
+  isa     => 'Int',
+  default => -1,
+  handles => {
+    nextSeqIter     => 'inc',
+    previousSeqIter => 'dec',
+    resetSeqIter    => 'reset'
+  }
+);
+
+# sequence container (for the iterator)
+has 'sequence' => (
+  is => 'rw',
+  isa => 'Ref'
 );
 
 #==============================================================================
@@ -112,6 +146,20 @@ sub BUILD
          $self->addInputPath( $self->input() );
       }
    }
+}
+
+#==============================================================================
+# TRIGGER
+#==============================================================================
+sub _edit_sequences {
+  my $self = shift;
+
+  # Check if and new sequence has been added
+  if( $self->countSequences() > $self->countSequenceOrder() ) {
+    $self->addSequenceOrder( $self->countSequences() - 1 );
+  }
+
+  # TODO: a lot of control for deleting sequences an changing order!
 }
 
 #==============================================================================
@@ -227,7 +275,7 @@ sub addInputPath {
       $log->fatal('Nothing imported from '.$input.'. Please check your path.');
    }
    else {
-      $log->trace('Added '.$added.' sequences from '.$input.'.');
+      $log->trace(' * Added '.$added.' sequences from '.$input.'.');
    }
 }
 
@@ -279,6 +327,29 @@ sub sortSequenceFeatures {
   }
   return(1);
 
+}
+
+#*******************************************************************************
+# ITERATORS
+#*******************************************************************************
+# Iterators on sequences
+sub nextSequence {
+  my $self = shift;
+
+  if( $self->sequence_iter() < $self->countSequenceOrder() - 1 ) {
+    # There is a next sequence
+    $self->nextSeqIter();
+    # Load the sequence ref into the sequence attribute
+    $self->sequence($self->getSequence($self->getSequenceOrder($self->sequence_iter())));
+    # Return true
+    return(1);
+  } else {
+    # There is no next sequence, reset iterator
+    $self->resetSeqIter();
+    # TODO: reset $self->sequence()
+    # Return false
+    return(0);
+  }
 }
 
 #*******************************************************************************
